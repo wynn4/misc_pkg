@@ -3,7 +3,7 @@
 
 <launch>
 
-  <!-- euler attitude conversion node -->
+  <!-- node for saving video file -->
   <node pkg="misc_pkg" type="bag_to_video_file.py" name="video_writer">
     <remap from="/image" to="/image_raw"/>
     <param name="filename" value="aruco_night" />
