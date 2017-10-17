@@ -5,6 +5,7 @@
 import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from geometry_msgs.msg import PoseStamped
 import cv2
 import math
 import numpy as np
@@ -19,7 +20,7 @@ class BagToVideoWriter(object):
         filename = rospy.get_param('~filename', 'video') + '.avi'
 
         # set the desired playback frame rate
-        fps = rospy.get_param('~framerate', 15)
+        self.fps = rospy.get_param('~framerate', 15.0)
 
         # set the video size
         width = rospy.get_param('~img_width', 1288)
@@ -28,13 +29,21 @@ class BagToVideoWriter(object):
         # setup VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         self.out = cv2.VideoWriter()
-        success = self.out.open(path + filename, fourcc, fps, (width,height), True)
+        success = self.out.open(path + filename, fourcc, self.fps, (width,height), True)
 
         # initialize CvBridge object
         self.bridge = CvBridge()
 
         # setup image subscriber
         self.image_sub = rospy.Subscriber("/image", Image, self.image_callback)
+
+        self.estimate_sub = rospy.Subscriber("/aruco/estimate", PoseStamped, self.estimate_callback)
+
+        self.x = 0.0
+        self.y = 0.0
+        self.z = 0.0
+
+        self.t = 0.0
 
 
     def image_callback(self, msg):
@@ -45,8 +54,30 @@ class BagToVideoWriter(object):
         except CvBridgeError as e:
             print(e)
 
+        # increment the time
+        self.t = self.t + 1.0/self.fps
+
+        # overlay the aruco position on the image frame
+        cv2.putText(cv_frame, "X: " + str(self.x), (10,30), cv2.FONT_HERSHEY_PLAIN,1.25,(255,255,255))
+        cv2.putText(cv_frame, "Y: " + str(self.y), (10,50), cv2.FONT_HERSHEY_PLAIN,1.25,(255,255,255))
+        cv2.putText(cv_frame, "Z: " + str(self.z), (10,70), cv2.FONT_HERSHEY_PLAIN,1.25,(255,255,255))
+
+        # set back to zero if we don't have fresh data
+        if self.t > 2.0/self.fps:
+            self.x = 0.0
+            self.y = 0.0
+            self.z = 0.0
+
         # write the frame to file
         self.out.write(cv_frame)
+
+    def estimate_callback(self, msg):
+        self.x = msg.pose.position.x
+        self.y = msg.pose.position.y
+        self.z = msg.pose.position.z
+
+        self.t = 0.0
+
 
 
 def main():

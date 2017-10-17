@@ -7,7 +7,7 @@
   <node pkg="misc_pkg" type="bag_to_video_file.py" name="video_writer">
     <remap from="/image" to="/image_raw"/>
     <param name="filename" value="aruco_night" />
-    <param name="framerate" value="15" />
+    <param name="framerate" value="15.0" />
     <param name="img_width" value="1288" />
     <param name="img_height" value="964" />
   </node>
