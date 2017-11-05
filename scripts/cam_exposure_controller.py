@@ -21,13 +21,14 @@ class ExposureController(object):
         self.intensity_thresh = rospy.get_param('~intensity_threshold', 50.0)
         self.intensity_des = rospy.get_param('~intensity_desired', 120.0)
         self.K = rospy.get_param('~k_gain', 0.5)
-        self.min_expose = rospy.get_param('~minimum_exposure', -3.0)
-        self.max_expose = rospy.get_param('~maximum_exposure', 0.0)
+        self.min_expose = rospy.get_param('~minimum_exposure', -10.0)
+        self.max_expose = rospy.get_param('~maximum_exposure', 10.0)
         camera_node = rospy.get_param('~camera_node', 'pointgrey_camera_node')
 
         # initialize other class variables
         self.s_size = (322,241) # 1/16 pixel area of 1288x964
         self.frame_small = np.zeros((241, 322), np.uint8)
+        self.expose_val = (self.max_expose + self.min_expose)/2.0
 
         # initialize CVBridge object
         self.bridge = CvBridge()
@@ -36,10 +37,10 @@ class ExposureController(object):
         self.client = dynamic_reconfigure.client.Client(camera_node)
 
         # initialize image subscriber
-        self.image_sub = rospy.Subscriber("/image", Image, self.image_callback)
+        self.image_sub = rospy.Subscriber("/image_raw", Image, self.image_callback)
 
         # initialize timer
-        self.exposure_update_rate = 4.0
+        self.exposure_update_rate = 1.0
         self.update_timer = rospy.Timer(rospy.Duration(1.0/self.exposure_update_rate), self.process_image)
 
 
@@ -60,9 +61,14 @@ class ExposureController(object):
         # resize the frame smaller to reduce later computations
         self.frame_small = cv2.resize(cv_frame, self.s_size)
 
+        # display the frame
+        # cv2.imshow('tiny_frame', self.frame_small)
+        # cv2.waitKey(100)
 
-    def process_image(self):
 
+    def process_image(self, event):
+
+        # now = rospy.get_time()
         # set the frame
         frame = self.frame_small
 
@@ -81,6 +87,8 @@ class ExposureController(object):
             self.adjust_exposure(self.intensity_des, intensity_avg)
         else:
             pass
+        # later = rospy.get_time()
+        # print(later - now)
 
 
     def adjust_exposure(self, desired, measured):
@@ -94,7 +102,7 @@ class ExposureController(object):
             norm_error = error/255.0
 
             # calculate new exposure value
-            self.expose_val = self.expose_val + self.K * error
+            self.expose_val = self.expose_val + self.K * norm_error
 
             # saturate
             self.expose_val = self.saturate(self.expose_val, self.min_expose, self.max_expose)
@@ -102,7 +110,7 @@ class ExposureController(object):
 
             # set the exposure
             params = {'exposure' : self.expose_val}
-            config = self.client.update_configuration(params)
+            config = self.client.update_configuration(params)   # this part is REALLY slow for some reason
         else:
             pass
 
