@@ -1,0 +1,12 @@
+<!-- launch file for running image_intensity_info_publisher with ROS images -->
+
+
+<launch>
+
+  <!-- node for running image_intensity_info_publisher -->
+  <node pkg="misc_pkg" type="image_intensity_info_publisher.py" name="intensity_info_publisher">
+    <param name="intensity_threshold" value="50.0" />
+  </node>
+
+
+</launch>

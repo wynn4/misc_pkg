@@ -3,7 +3,7 @@
 
 <launch>
 
-  <!-- node for saving video file -->
+  <!-- node for running cam_exposure_controller -->
   <node pkg="misc_pkg" type="cam_exposure_controller.py" name="exposure_controller">
     <param name="intensity_threshold" value="50.0" />
     <param name="intensity_desired" value="120.0" />
