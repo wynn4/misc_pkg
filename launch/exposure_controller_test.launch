@@ -43,7 +43,7 @@
     <param name="k_gain" value="0.5" />
     <param name="minimum_exposure" value="-3.8" />
     <param name="maximum_exposure" value="0.0" />
-    <param name="camera_node" value="pointgrey_camera" />
+    <param name="camera_node" value="pointgrey_camera_node" />
   </node>
 
   <group if="$(arg show)">
