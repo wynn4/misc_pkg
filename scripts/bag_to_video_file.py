@@ -57,6 +57,9 @@ class BagToVideoWriter(object):
         # increment the time
         self.t = self.t + 1.0/self.fps
 
+        # draw a black box to hold aruco data
+        cv2.rectangle(cv_frame, (0,0), (280, 90), (0, 0, 0),-1)
+
         # overlay the aruco position on the image frame
         cv2.putText(cv_frame, "X: " + str(self.x), (10,30), cv2.FONT_HERSHEY_PLAIN,1.25,(255,255,255))
         cv2.putText(cv_frame, "Y: " + str(self.y), (10,50), cv2.FONT_HERSHEY_PLAIN,1.25,(255,255,255))
@@ -70,6 +73,8 @@ class BagToVideoWriter(object):
 
         # write the frame to file
         self.out.write(cv_frame)
+        cv2.imshow('image', cv_frame)
+        cv2.waitKey(30)
 
     def estimate_callback(self, msg):
         self.x = msg.pose.position.x
