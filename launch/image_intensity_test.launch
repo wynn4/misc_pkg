@@ -15,7 +15,11 @@
     <param name="auto_shutter" value="false" />
     <param name="shutter_speed" value="0.01" />
     <param name="format7_color_coding" value="mono8" />
-    <param name="auto_white_balance" value="true" />
+    <param name="auto_white_balance" value="false" />
+    <param name="auto_gain" value="false" />
+    <param name="gain" value="10.0" />
+    <param name="brightness" value="1.4" />
+    <param name="gamma" value="2.0" />
   </node>
 
   <node pkg="aruco_localization" type="aruco_localization" name="aruco">
