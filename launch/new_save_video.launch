@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- node for saving video file -->
+  <node pkg="misc_pkg" type="new_bag_to_video_file.py" name="video_writer">
+    <param name="filename" value="ibvs_night_pl_paper" />
+    <param name="framerate" value="25.0" />
+    <param name="img_width" value="962" />
+    <param name="img_height" value="720" />
+  </node>
+
+
+</launch>
